@@ -25,7 +25,7 @@ function App() {
 
   return (
     <>
-      <Links className='bg-themeDarkBG' />
+      <Links />
     </>
   );
 }
