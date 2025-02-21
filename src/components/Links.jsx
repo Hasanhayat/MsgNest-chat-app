@@ -26,6 +26,7 @@ const Links = () => {
       <Route path="/signup" element={<Signup />} />
       <Route path="*" element={<Navigate to={"/"} />} />
     </Routes>
+    
   )
   // );
 };
