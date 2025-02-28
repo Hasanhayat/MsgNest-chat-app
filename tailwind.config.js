@@ -2,16 +2,27 @@ import daisyui from "daisyui";
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {},
   },
   plugins: [daisyui],
   daisyui: {
-    themes: ["light",
+    themes: [
+      {
+        default: {
+          primary: "#ffffff",
+          secondary: "#f0f0f0",
+          accent: "#ff4081",
+          neutral: "#000000", 
+          "base-100": "#000000",
+          info: "#2196f3",
+          success: "#4caf50",
+          warning: "#ff9800", 
+          error: "#f44336", 
+        },
+      },
+      "light",
       "dark",
       "cupcake",
       "bumblebee",
@@ -43,6 +54,6 @@ export default {
       "dim",
       "nord",
       "sunset",
-    ]
-  }
-}
+    ],
+  },
+};
