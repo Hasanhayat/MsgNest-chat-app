@@ -4,9 +4,12 @@ import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 import toast from "react-hot-toast";
+import { GlobalContext } from "../context/Context";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,10 +33,14 @@ const LoginPage = () => {
     if (success === true) {
       const auth = getAuth();
       try {
+        setLoading(true);
         const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
         dispatch({ type: "USER_LOGIN", payload: userCredential.user });
         toast.success("Logged in successfully!");
+        setLoading(false);
+
       } catch (error) {
+        setLoading(false);
         toast.error(error.message);
       }
     }
@@ -107,8 +114,8 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
-              {isLoggingIn ? (
+            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+              {loading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
                   Loading...

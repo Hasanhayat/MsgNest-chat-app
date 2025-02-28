@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GlobalContext } from "../context/Context";
 import AuthImagePattern from "../components/AuthImagePattern";
 
@@ -21,7 +21,7 @@ const SignupPage = () => {
     email: "",
     password: "",
   });
-  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { dispatch } = useContext(GlobalContext);
 
   const validateForm = () => {
@@ -42,7 +42,7 @@ const SignupPage = () => {
     const success = validateForm();
 
     if (success === true) {
-      setIsSigningUp(true);
+      setLoading(true);
       const auth = getAuth();
       try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -52,13 +52,19 @@ const SignupPage = () => {
         );
         const user = userCredential.user;
 
+        // Update the user's profile with the full name
+        await updateProfile(user, {
+          displayName: formData.fullName,
+          photoURL: "", // You can set a photo URL if you have one
+        });
+
         // Dispatch user login action
         dispatch({ type: "USER_LOGIN", payload: user });
         toast.success("Account created successfully!");
       } catch (error) {
         toast.error(error.message);
       } finally {
-        setIsSigningUp(false);
+        setLoading(false);
       }
     }
   };
@@ -89,7 +95,7 @@ const SignupPage = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="size-5 text-base-content/40" />
+                  <User  className="size-5 text-base-content/40" />
                 </div>
                 <input
                   type="text"
@@ -157,9 +163,9 @@ const SignupPage = () => {
             <button
               type="submit"
               className="btn btn-primary w-full"
-              disabled={isSigningUp}
+              disabled={loading}
             >
-              {isSigningUp ? (
+              {loading ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />
                   Loading...
