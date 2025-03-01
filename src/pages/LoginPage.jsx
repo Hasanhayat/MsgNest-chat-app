@@ -38,7 +38,6 @@ const LoginPage = () => {
         dispatch({ type: "USER_LOGIN", payload: userCredential.user });
         toast.success("Logged in successfully!");
         setLoading(false);
-
       } catch (error) {
         setLoading(false);
         toast.error(error.message);

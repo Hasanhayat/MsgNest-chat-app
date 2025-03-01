@@ -10,15 +10,6 @@ let data = {
 };
 
 export default function ContextProvider({ children }) {
-  const login = async (email, password) => {
-    const auth = getAuth();
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      dispatch({ type: "USER_LOGIN", payload: userCredential.user });
-    } catch (error) {
-      console.error("Error logging in:", error);
-    }
-  };
 
   const [state, dispatch] = useReducer(reducer, data);
   const logout = () => {
