@@ -76,15 +76,6 @@ const firebaseConfig = {
 };
 ```
 
-## 📸 Screenshots
-
-### Home Page
-
-
-
-### Chat Interface
-
-
 
 ## 📌 Upcoming Features
 
@@ -107,5 +98,5 @@ Special thanks to the open-source community and the Firebase team for their amaz
 
 ---
 
-Built with 💙 by Hasan Hayat
+Built with 💙 by Hassan Hayat
 
