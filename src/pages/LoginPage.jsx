@@ -18,9 +18,11 @@ const LoginPage = () => {
 
   const validateForm = () => {
     if (!formData.email.trim()) return toast.error("Email is required");
-    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      return toast.error("Invalid email format");
     if (!formData.password) return toast.error("Password is required");
-    if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (formData.password.length < 6)
+      return toast.error("Password must be at least 6 characters");
 
     return true;
   };
@@ -34,7 +36,11 @@ const LoginPage = () => {
       const auth = getAuth();
       try {
         setLoading(true);
-        const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
         dispatch({ type: "USER_LOGIN", payload: userCredential.user });
         toast.success("Logged in successfully!");
         setLoading(false);
@@ -79,7 +85,9 @@ const LoginPage = () => {
                   className={`input input-bordered w-full pl-10`}
                   placeholder="you@xyz.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -97,7 +105,9 @@ const LoginPage = () => {
                   className={`input input-bordered w-full pl-10`}
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
                 <button
                   type="button"
@@ -113,7 +123,11 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -139,7 +153,9 @@ const LoginPage = () => {
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
         title={"Welcome back!"}
-        subtitle={"Sign in to continue your conversations and catch up with your messages."}
+        subtitle={
+          "Sign in to continue your conversations and catch up with your messages."
+        }
       />
     </div>
   );
