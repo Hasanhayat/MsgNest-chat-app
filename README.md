@@ -39,8 +39,8 @@ MsgNest/
 1. Clone the repository:
 
 ```bash
-   git clone https://github.com/your-username/MsgNest.git
-   cd MsgNest
+   git clone https://github.com/your-username/MsgNest-chat-app.git
+   cd MsgNest-chat-app
 ```
 
 2. Install dependencies:
