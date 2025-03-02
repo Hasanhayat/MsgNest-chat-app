@@ -10,11 +10,11 @@ import {
   where,
   addDoc,
   onSnapshot,
-  Timestamp,
+  serverTimestamp,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 
-export const useChatStore = create((set) => ({
+export const useChatStore = create((set, gets) => ({
   messages: [],
   users: [],
   selectedUser: null,
@@ -67,23 +67,22 @@ export const useChatStore = create((set) => ({
     // Return the unsubscribe function to stop listening for updates
     return unsubscribe;
   },
-  
-  
+
   sendMessage: async (messageData) => {
-          
+    const { selectedUser } = gets();
     try {
       await addDoc(collection(db, "messages"), {
         ...messageData,
         receiverId: selectedUser.id, // Assuming selectedUser  has an id
-        createdAt: Timestamp.now(),
+        createdAt: serverTimestamp(),
       });
     } catch (error) {
       console.log(selectedUser);
-      
+
       toast.error("Failed to send message");
     }
   },
-  
+
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 
   // New method to get online users
