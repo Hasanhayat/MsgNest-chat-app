@@ -13,8 +13,10 @@ import toast from "react-hot-toast";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GlobalContext } from "../context/Context";
 import AuthImagePattern from "../components/AuthImagePattern";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 const SignupPage = () => {
+  const db = getFirestore();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -52,17 +54,20 @@ const SignupPage = () => {
         );
         const user = userCredential.user;
 
+        // Update the user's profile with the full name
         await updateProfile(user, {
           displayName: formData.fullName,
           photoURL: "", // You can set a photo URL if you have one
         });
 
+        // Add user to Firestore
         await setDoc(doc(db, "users", user.uid), {
           fullName: formData.fullName,
           email: formData.email,
           profilePic: "", // You can set a default profile picture URL
         });
 
+        // Dispatch user login action
         dispatch({ type: "USER_LOGIN", payload: user });
         toast.success("Account created successfully!");
       } catch (error) {

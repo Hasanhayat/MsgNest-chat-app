@@ -11,7 +11,6 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
-const db = getFirestore();
 
 export const useChatStore = create((set) => ({
   messages: [],
@@ -32,6 +31,7 @@ export const useChatStore = create((set) => ({
       }));
       set({ users: usersList });
     } catch (error) {
+      console.log(error);
       toast.error("Failed to load users");
     } finally {
       set({ isUsersLoading: false });
