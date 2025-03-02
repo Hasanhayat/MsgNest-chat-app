@@ -52,13 +52,17 @@ const SignupPage = () => {
         );
         const user = userCredential.user;
 
-        // Update the user's profile with the full name
         await updateProfile(user, {
           displayName: formData.fullName,
           photoURL: "", // You can set a photo URL if you have one
         });
 
-        // Dispatch user login action
+        await setDoc(doc(db, "users", user.uid), {
+          fullName: formData.fullName,
+          email: formData.email,
+          profilePic: "", // You can set a default profile picture URL
+        });
+
         dispatch({ type: "USER_LOGIN", payload: user });
         toast.success("Account created successfully!");
       } catch (error) {
