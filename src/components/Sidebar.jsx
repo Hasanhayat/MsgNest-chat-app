@@ -20,6 +20,7 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
     getOnlineUsers(); // Fetch online users
+    
   }, [getUsers, getOnlineUsers]);
 
   const filteredUsers = showOnlineOnly
@@ -81,7 +82,7 @@ const Sidebar = () => {
               )}
             </div>
             <div className="hidden lg:block text-left min-w-0">
-              <div className="font-medium truncate">{user.fullName}{(user._id == auth.currentUser.uid)?"(you)" : null}</div>
+              <div className="font-medium truncate">{user.fullName}{(user.id == auth.currentUser.uid)?" (You)" : null}</div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
