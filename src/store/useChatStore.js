@@ -1,6 +1,6 @@
 // store/useChatStore.js
 import { create } from "zustand";
-import { db } from "../firebase"; // Import Firestore
+import { getDatabase, ref, onValue } from "firebase/database"; // Import Realtime Database functions
 import {
   collection,
   getDocs,
@@ -8,13 +8,16 @@ import {
   where,
   addDoc,
   onSnapshot,
+  getFirestore,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
+const db = getFirestore();
 
 export const useChatStore = create((set) => ({
   messages: [],
   users: [],
-  selectedUser: null,
+  selectedUser :  null,
+  onlineUsers: [], // New state for online users
   isUsersLoading: false,
   isMessagesLoading: false,
 
@@ -65,11 +68,11 @@ export const useChatStore = create((set) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser } = get();
+    const { selectedUser  } = get();
     try {
       await addDoc(collection(db, "messages"), {
         ...messageData,
-        receiverId: selectedUser.id, // Assuming selectedUser  has an id
+        receiverId: selectedUser .id, // Assuming selectedUser  has an id
         createdAt: new Date(),
       });
     } catch (error) {
@@ -77,5 +80,19 @@ export const useChatStore = create((set) => ({
     }
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser :  (selectedUser ) => set({ selectedUser  }),
+
+  // New method to get online users
+  getOnlineUsers : () => {
+    const db = getDatabase();
+    const usersRef = ref(db, 'users');
+
+    onValue(usersRef, (snapshot) => {
+      const users = snapshot.val();
+      const onlineUsers = Object.values(users).filter(user => user.online);
+      set({ onlineUsers }); // Update the onlineUsers state
+    }, (error) => {
+      toast.error("Failed to load online users");
+    });
+  },
 }));
