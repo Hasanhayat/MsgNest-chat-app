@@ -3,9 +3,7 @@ import Navbar from "./components/Navbar";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
-import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
 
 // pages
 import HomePage from "./pages/HomePage";
@@ -16,21 +14,7 @@ import SettingsPage from "./pages/SettingsPage";
 import { useThemeStore } from "./store/useThemeStore";
 import { GlobalContext } from "./context/Context";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBMu5b42XdRRY_qdIaXlFmZGfsHshZwfqQ",
-  authDomain: "msgnest.firebaseapp.com",
-  projectId: "msgnest",
-  storageBucket: "msgnest.appspot.com",
-  messagingSenderId: "364879098363",
-  appId: "1:364879098363:web:6722c78ef9b7d530a65b5e",
-  measurementId: "G-C0H0P5DVVD",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
+const auth = getAuth();
 
 const App = () => {
   const { state, dispatch, logout } = useContext(GlobalContext);

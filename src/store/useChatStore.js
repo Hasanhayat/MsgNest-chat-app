@@ -1,6 +1,8 @@
 // store/useChatStore.js
 import { create } from "zustand";
-import { getDatabase, ref, onValue } from "firebase/database"; // Import Realtime Database functions
+import { realtimeDb } from "../firebase"; // Import Realtime Database instance
+import { db } from "../firebase"; // Import Firestore instance
+import { ref, onValue } from "firebase/database"; // Import Realtime Database functions
 import {
   collection,
   getDocs,
@@ -8,14 +10,13 @@ import {
   where,
   addDoc,
   onSnapshot,
-  getFirestore,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 export const useChatStore = create((set) => ({
   messages: [],
   users: [],
-  selectedUser :  null,
+  selectedUser:  null,
   onlineUsers: [], // New state for online users
   isUsersLoading: false,
   isMessagesLoading: false,
@@ -31,7 +32,6 @@ export const useChatStore = create((set) => ({
       }));
       set({ users: usersList });
     } catch (error) {
-      console.log(error);
       toast.error("Failed to load users");
     } finally {
       set({ isUsersLoading: false });
@@ -80,12 +80,11 @@ export const useChatStore = create((set) => ({
     }
   },
 
-  setSelectedUser :  (selectedUser ) => set({ selectedUser  }),
+  setSelectedUser:  (selectedUser ) => set({ selectedUser  }),
 
   // New method to get online users
-  getOnlineUsers : () => {
-    const db = getDatabase();
-    const usersRef = ref(db, 'users');
+  getOnlineUsers: () => {
+    const usersRef = ref(realtimeDb, 'users'); // Use the Realtime Database instance
 
     onValue(usersRef, (snapshot) => {
       const users = snapshot.val();

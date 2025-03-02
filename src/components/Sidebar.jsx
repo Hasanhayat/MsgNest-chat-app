@@ -1,26 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { useChatStore } from '../store/useChatStore';
-import SidebarSkeleton from './skeletons/SidebarSkeleton';
-import { User } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useChatStore } from "../store/useChatStore";
+import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import { User } from "lucide-react";
+import { getAuth } from "firebase/auth";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser , setSelectedUser , isUsersLoading, getOnlineUsers, onlineUsers } = useChatStore();
+  const {
+    getUsers,
+    users,
+    selectedUser,
+    setSelectedUser,
+    isUsersLoading,
+    getOnlineUsers,
+    onlineUsers,
+  } = useChatStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const auth = getAuth();
 
   useEffect(() => {
     getUsers();
     getOnlineUsers(); // Fetch online users
   }, [getUsers, getOnlineUsers]);
 
-  const filteredUsers = showOnlineOnly ? users.filter(user => onlineUsers.includes(user.id)) : users;
+  const filteredUsers = showOnlineOnly
+    ? users.filter((user) => onlineUsers.includes(user.id))
+    : users;
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className='h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200'>
+    <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
-          <User  className='size-6' />
+          <User className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
 
@@ -34,7 +46,9 @@ const Sidebar = () => {
             />
             <span className="text-sm">Show online only</span>
           </label>
-          <span className="text-xs text-zinc-500">({onlineUsers.length} online)</span>
+          <span className="text-xs text-zinc-500">
+            ({onlineUsers.length} online)
+          </span>
         </div>
       </div>
 
@@ -42,11 +56,15 @@ const Sidebar = () => {
         {filteredUsers.map((user) => (
           <button
             key={user.id}
-            onClick={() => setSelectedUser (user)}
+            onClick={() => setSelectedUser(user)}
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
-              ${selectedUser ?.id === user.id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              ${
+                selectedUser?.id === user.id
+                  ? "bg-base-300 ring-1 ring-base-300"
+                  : ""
+              }
             `}
           >
             <div className="relative mx-auto lg:mx-0">
@@ -61,8 +79,13 @@ const Sidebar = () => {
                   rounded-full ring-2 ring-zinc-900"
                 />
               )}
- </div>
-            <span className="font-medium">{user.name}</span>
+            </div>
+            <div className="hidden lg:block text-left min-w-0">
+              <div className="font-medium truncate">{user.fullName}{(user._id == auth.currentUser.uid)?"(you)" : null}</div>
+              <div className="text-sm text-zinc-400">
+                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+              </div>
+            </div>{" "}
           </button>
         ))}
       </div>
