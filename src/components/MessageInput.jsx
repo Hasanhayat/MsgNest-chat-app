@@ -59,6 +59,7 @@ const MessageInput = () => {
         }
 
         try {
+            setText("")
             await sendMessage({
                 text: text.trim(),
                 image: imageUrl,
