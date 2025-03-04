@@ -13,6 +13,9 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth()
 
 export const useChatStore = create((set, gets) => ({
   messages: [],
@@ -38,6 +41,9 @@ export const useChatStore = create((set, gets) => ({
       set({ isUsersLoading: false });
     }
   },
+  
+  setSelectedUser: (selectedUser) => set({ selectedUser }),
+
 
   getMessages: (userId) => {
     set({ isMessagesLoading: true });
@@ -45,6 +51,7 @@ export const useChatStore = create((set, gets) => ({
     const messagesQuery = query(
       messagesCollection,
       where("receiverId", "==", userId)
+      
     );
 
     // Real-time updates
@@ -75,15 +82,14 @@ export const useChatStore = create((set, gets) => ({
         ...messageData,
         receiverId: selectedUser.id, // Assuming selectedUser  has an id
         createdAt: serverTimestamp(),
+        senderId: auth.currentUser.uid,
       });
     } catch (error) {
       console.log(selectedUser);
-
       toast.error("Failed to send message");
     }
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
 
   // New method to get online users
   getOnlineUsers: () => {

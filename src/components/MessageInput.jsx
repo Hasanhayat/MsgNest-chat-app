@@ -64,9 +64,6 @@ const MessageInput = () => {
                 text: text.trim(),
                 image: imageUrl,
             });
-
-            // Clear form
-            setText("");
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
         } catch (error) {
