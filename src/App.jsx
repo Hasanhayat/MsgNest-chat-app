@@ -22,7 +22,7 @@ const App = () => {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    document.title = "Welcome - MsgNset";
+    document.title = "Welcome - MsgNest";
 
     setLoading(true);
     onAuthStateChanged(auth, (user) => {

@@ -50,8 +50,10 @@ export const useChatStore = create((set, gets) => ({
     const messagesCollection = collection(db, "messages");
     const messagesQuery = query(
       messagesCollection,
-      where("receiverId", "==", userId),
-      where("senderId","==",auth.currentUser.uid)
+      where("receiverId", "==", auth.currentUser.uid),
+      where("senderId", "==", userId),
+      // where("receiverId", "==", userId),
+      // where("senderId", "==", auth.currentUser.uid),
     );
     // Real-time updates
     const unsubscribe = onSnapshot(
