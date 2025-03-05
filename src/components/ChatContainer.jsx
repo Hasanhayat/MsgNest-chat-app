@@ -3,6 +3,8 @@ import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
+import moment from "moment";
+
 
 const ChatContainer = () => {
   const {
@@ -13,11 +15,17 @@ const ChatContainer = () => {
     setSelectedUser,
   } = useChatStore();
 
-  function formatMessageTime(date) {
+  function formatMessageTime(timestamp) {
+
+    if (!timestamp || typeof timestamp !== "object" || !timestamp.seconds) {
+      return "Just Now";
+    }
+    // Convert seconds to milliseconds (ignore nanos as they aren't needed)
+    const date = moment.unix(timestamp.seconds);
     return new Date(date).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false,
+      hour12: true,
     });
   }
 

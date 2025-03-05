@@ -41,11 +41,11 @@ const MessageInput = () => {
         if (imagePreview) {
             const formData = new FormData();
             formData.append("file", imagePreview);
-            formData.append("upload_preset", "MsgNest-messeges");
-            formData.append("cloud_name", "diuztua2d");
+            formData.append("upload_preset", "msgnest");
+            formData.append("cloud_name", "dlkvzmnrt");
 
             try {
-                const response = await fetch("https://api.cloudinary.com/v1_1/diuztua2d/image/upload", {
+                const response = await fetch("https://api.cloudinary.com/v1_1/dlkvzmnrt/image/upload", {
                     method: "POST",
                     body: formData,
                 });
@@ -60,11 +60,11 @@ const MessageInput = () => {
 
         try {
             setText("")
+            setImagePreview(null);
             await sendMessage({
                 text: text.trim(),
                 image: imageUrl,
             });
-            setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
         } catch (error) {
             toast.error("Failed to send message");

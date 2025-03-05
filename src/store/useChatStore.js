@@ -50,10 +50,9 @@ export const useChatStore = create((set, gets) => ({
     const messagesCollection = collection(db, "messages");
     const messagesQuery = query(
       messagesCollection,
-      where("receiverId", "==", userId)
-      
+      where("receiverId", "==", userId),
+      where("senderId","==",auth.currentUser.uid)
     );
-
     // Real-time updates
     const unsubscribe = onSnapshot(
       messagesQuery,
@@ -62,6 +61,11 @@ export const useChatStore = create((set, gets) => ({
           id: doc.id,
           ...doc.data(),
         }));
+        messagesList.sort((a, b) => {
+          const dateA = a.createdAt?.seconds || 0;
+          const dateB = b.createdAt?.seconds || 0;
+          return dateA - dateB; // oldest first
+        });
         set({ messages: messagesList });
         set({ isMessagesLoading: false });
       },
@@ -70,8 +74,6 @@ export const useChatStore = create((set, gets) => ({
         set({ isMessagesLoading: false });
       }
     );
-
-    // Return the unsubscribe function to stop listening for updates
     return unsubscribe;
   },
 
@@ -85,7 +87,6 @@ export const useChatStore = create((set, gets) => ({
         senderId: auth.currentUser.uid,
       });
     } catch (error) {
-      console.log(selectedUser);
       toast.error("Failed to send message");
     }
   },
