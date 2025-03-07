@@ -1,18 +1,19 @@
-import { useEffect } from "react";
-import { getAuth } from "firebase/auth";
-import { getDatabase, ref, set, onDisconnect, serverTimestamp } from "firebase/database";
-import { useChatStore } from "../store/useChatStore";
-import Sidebar from "../components/Sidebar";
+import { serverTimestamp } from "firebase/database";
 import ChatContainer from "../components/ChatContainer";
 import NoChatSelected from "../components/NoChatSelected";
+import Sidebar from "../components/Sidebar";
+import { useChatStore } from "../store/useChatStore";
+import { getAuth } from "firebase/auth";
+import { useEffect } from "react";
+import { getDatabase, ref, set, onDisconnect } from "firebase/database";
 
 const HomePage = () => {
   const { selectedUser, getOnlineUsers } = useChatStore();
   const auth = getAuth();
-  const db = getDatabase();
+  const db = getDatabase(); // Realtime Database ka reference lena
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) return; // Agar user nahi hai to return karna
 
     const userRef = ref(db, `users/${auth.currentUser.uid}`);
 
@@ -23,19 +24,20 @@ const HomePage = () => {
       displayName: auth.currentUser.displayName || "Unknown User",
     });
 
-    // Jab user disconnect ho ya tab close kare to offline karna
+    // Disconnect hone par offline mark karna
     onDisconnect(userRef).set({
       online: false,
       lastSeen: serverTimestamp(),
     });
 
+    // Component unmount hone par bhi offline mark karna
     return () => {
       set(userRef, {
         online: false,
         lastSeen: serverTimestamp(),
       });
     };
-  }, [auth]);
+  }, [auth, getOnlineUsers]);
 
   return (
     <div className="h-screen bg-base-200">

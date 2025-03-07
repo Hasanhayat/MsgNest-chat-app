@@ -4,7 +4,7 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import moment from "moment";
-
+import { getAuth } from "firebase/auth";
 
 const ChatContainer = () => {
   const {
@@ -12,15 +12,14 @@ const ChatContainer = () => {
     isMessagesLoading,
     getMessages,
     selectedUser,
-    setSelectedUser,
   } = useChatStore();
 
-  function formatMessageTime(timestamp) {
+  const auth = getAuth(); // Firebase Auth se current user lana
 
+  function formatMessageTime(timestamp) {
     if (!timestamp || typeof timestamp !== "object" || !timestamp.seconds) {
       return "Just Now";
     }
-    // Convert seconds to milliseconds (ignore nanos as they aren't needed)
     const date = moment.unix(timestamp.seconds);
     return new Date(date).toLocaleTimeString("en-US", {
       hour: "2-digit",
@@ -31,8 +30,8 @@ const ChatContainer = () => {
 
   useEffect(() => {
     if (selectedUser) {
-      const unsubscribe = getMessages(selectedUser.id); // Pass the selected user's ID
-      return () => unsubscribe(); // Cleanup the listener on unmount
+      const unsubscribe = getMessages(selectedUser.id);
+      return () => unsubscribe();
     }
   }, [selectedUser, getMessages]);
 
@@ -47,7 +46,9 @@ const ChatContainer = () => {
           <div
             key={message.id}
             className={`chat ${
-              message.senderId === selectedUser.id ? "chat-end" : "chat-start"
+              message.senderId === auth.currentUser.uid
+                ? "chat-end"
+                : "chat-start"
             }`}
           >
             <div className="chat-image avatar">
@@ -63,8 +64,11 @@ const ChatContainer = () => {
               </div>
             </div>
 
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
+            <div className="chat-header mb-1 flex items-center gap-1">
+              {message.senderId === auth.currentUser.uid && (
+                <span className="text-xs font-semibold text-green-400">You</span>
+              )}
+              <time className="text-xs opacity-50">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
