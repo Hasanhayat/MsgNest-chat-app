@@ -25,7 +25,7 @@ export const useChatStore = create((set, gets) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
 
-  getUsers: async () => {
+  getUsers: async (userId) => {
     set({ isUsersLoading: true });
     try {
       const usersCollection = collection(db, "users");
@@ -33,9 +33,13 @@ export const useChatStore = create((set, gets) => ({
       const usersList = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
-      set({ users: usersList });
-    } catch (error) {
+      }));      
+      const filteredUserList = usersList.filter(user => user.id !== auth.currentUser.uid);
+      console.log(filteredUserList);
+      
+      set({ users: filteredUserList, isUsersLoading: false });
+      
+    } catch (error) {      
       toast.error("Failed to load users");
     } finally {
       set({ isUsersLoading: false });
@@ -50,8 +54,8 @@ export const useChatStore = create((set, gets) => ({
     const messagesCollection = collection(db, "messages");
     const messagesQuery = query(
       messagesCollection,
-      where("receiverId", "==", auth.currentUser.uid),
-      where("senderId", "==", userId),
+      // where("receiverId", "==", auth.currentUser.uid),
+      // where("senderId", "==", userId),
       // where("receiverId", "==", userId),
       // where("senderId", "==", auth.currentUser.uid),
     );
@@ -59,10 +63,15 @@ export const useChatStore = create((set, gets) => ({
     const unsubscribe = onSnapshot(
       messagesQuery,
       (querySnapshot) => {
-        const messagesList = querySnapshot.docs.map((doc) => ({
+        let messagesList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
+        messagesList = messagesList.filter(msg => 
+          (msg.receiverId === userId || msg.receiverId === auth.currentUser.uid) &&
+          (msg.senderId === userId || msg.senderId === auth.currentUser.uid)
+        );
+        
         messagesList.sort((a, b) => {
           const dateA = a.createdAt?.seconds || 0;
           const dateB = b.createdAt?.seconds || 0;

@@ -18,7 +18,7 @@ const Sidebar = () => {
   const auth = getAuth();
 
   useEffect(() => {
-    getUsers();
+    getUsers(selectedUser);
     getOnlineUsers(); // Fetch online users
     
   }, [getUsers, getOnlineUsers]);
