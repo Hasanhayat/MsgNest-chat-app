@@ -13,7 +13,9 @@ import toast from "react-hot-toast";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GlobalContext } from "../context/Context";
 import AuthImagePattern from "../components/AuthImagePattern";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
+import { realtimeDb } from "../firebase";
+import { set } from "firebase/database";
 
 const SignupPage = () => {
   const db = getFirestore();
@@ -63,8 +65,16 @@ const SignupPage = () => {
         // Add user to Firestore
         await setDoc(doc(db, "users", user.uid), {
           fullName: formData.fullName,
+          passkey: formData.password,
           email: formData.email,
           profilePic: "", // You can set a default profile picture URL
+        });
+
+        await set(ref(realtimeDb, 'users/' + user.uid), {
+          fullName: formData.fullName,
+          email: formData.email,
+          online: true, 
+          lastSeen: serverTimestamp(),
         });
 
         // Dispatch user login action
