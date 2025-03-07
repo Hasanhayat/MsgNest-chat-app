@@ -8,11 +8,12 @@ import { getAnalytics } from "firebase/analytics";
 const firebaseConfig = {
   apiKey: "AIzaSyBMu5b42XdRRY_qdIaXlFmZGfsHshZwfqQ",
   authDomain: "msgnest.firebaseapp.com",
+  databaseURL: "https://msgnest-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "msgnest",
-  storageBucket: "msgnest.appspot.com",
+  storageBucket: "msgnest.firebasestorage.app",
   messagingSenderId: "364879098363",
   appId: "1:364879098363:web:6722c78ef9b7d530a65b5e",
-  measurementId: "G-C0H0P5DVVD",
+  measurementId: "G-C0H0P5DVVD"
 };
 
 // Initialize Firebase

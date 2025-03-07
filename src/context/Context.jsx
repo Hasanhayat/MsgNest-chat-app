@@ -18,7 +18,7 @@ export default function ContextProvider({ children }) {
     signOut(auth)
       .then(() => {
         dispatch({ type: "USER_LOGOUT" });
-        console.log("signout", auth);
+        // console.log("signout", auth);
       })
       .catch((error) => {
         console.log("error in signout", error);

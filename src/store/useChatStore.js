@@ -35,7 +35,6 @@ export const useChatStore = create((set, gets) => ({
         ...doc.data(),
       }));      
       const filteredUserList = usersList.filter(user => user.id !== auth.currentUser.uid);
-      console.log(filteredUserList);
       
       set({ users: filteredUserList, isUsersLoading: false });
       
@@ -105,18 +104,18 @@ export const useChatStore = create((set, gets) => ({
 
   // New method to get online users
   getOnlineUsers: () => {
-    const usersRef = ref(realtimeDb, "users"); // Use the Realtime Database instance
-
-    onValue(
-      usersRef,
-      (snapshot) => {
-        const users = snapshot.val();
-        const onlineUsers = Object.values(users).filter((user) => user.online);
-        set({ onlineUsers }); // Update the onlineUsers state
-      },
-      (error) => {
-        toast.error("Failed to load online users");
-      }
-    );
+    const usersRef = ref(realtimeDb, "users");
+  
+    onValue(usersRef, (snapshot) => {
+      const users = snapshot.val();
+      const onlineUsers = Object.keys(users)
+        .map((uid) => ({ id: uid, ...users[uid] }))
+        .filter((user) => user.online && user.id !== auth.currentUser.uid);
+  
+      set({ onlineUsers }); // Online users state ko update karna
+    }, (error) => {
+      toast.error("Failed to load online users");
+    });
   },
+  
 }));

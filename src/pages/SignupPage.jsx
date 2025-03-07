@@ -15,7 +15,7 @@ import { GlobalContext } from "../context/Context";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
 import { realtimeDb } from "../firebase";
-import { set } from "firebase/database";
+import { ref, set } from "firebase/database";
 
 const SignupPage = () => {
   const db = getFirestore();
@@ -67,7 +67,7 @@ const SignupPage = () => {
           fullName: formData.fullName,
           passkey: formData.password,
           email: formData.email,
-          profilePic: "", // You can set a default profile picture URL
+          profilePic: "", 
         });
 
         await set(ref(realtimeDb, 'users/' + user.uid), {

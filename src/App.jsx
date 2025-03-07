@@ -36,7 +36,6 @@ const App = () => {
         // User is signed out
         // ...
         dispatch({ type: "USER_LOGOUT" });
-        console.log("User Not Found");
         setLoading(false);
       }
     });
