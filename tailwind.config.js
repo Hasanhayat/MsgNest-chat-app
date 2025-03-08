@@ -11,6 +11,7 @@ export default {
     themes: [
       {
         default: {
+          // General colors
           primary: "#ffffff", // White for primary text
           secondary: "#f0f0f0", // Light gray for secondary elements
           accent: "#ff4081", // Pink accent color
@@ -23,19 +24,15 @@ export default {
           warning: "#ff9800", // Orange for warnings
           error: "#f44336", // Red for error messages
       
-          // Additional colors
-          "base-400": "#4d4d4d", // Darker gray for deeper backgrounds
-          "base-500": "#666666", // Gray for disabled elements
-          "base-600": "#808080", // Light gray for subtle backgrounds
-          "highlight": "#ffeb3b", // Yellow for highlights
-          "shadow": "#000000", // Black for shadows
-          "overlay": "rgba(0, 0, 0, 0.7)", // Semi-transparent black for overlays
-          "link": "#2196f3", // Blue for links
-          "border": "#444444", // Dark gray for borders
-          "card": "#2a2a2a", // Darker background for cards
-          "button-hover": "#ff4081", // Pink for button hover effects
-          "button-active": "#e91e63", // Darker pink for active buttons
-          "disabled": "#555555", // Gray for disabled elements
+          // Chat bubble colors
+          "chat-bubble-neutral": "#1a1a1a", // Neutral color for chat bubble
+          "chat-bubble-primary": "#ff4081", // Primary color for chat bubble (sent messages)
+          "chat-bubble-secondary": "#2a2a2a", // Secondary color for chat bubble (received messages)
+          "chat-bubble-accent": "#ff4081", // Accent color for chat bubble (highlighted messages)
+          "chat-bubble-info": "#2196f3", // Info color for chat bubble (informational messages)
+          "chat-bubble-success": "#4caf50", // Success color for chat bubble (successful actions)
+          "chat-bubble-warning": "#ff9800", // Warning color for chat bubble (warnings)
+          "chat-bubble-error": "#f44336", // Error color for chat bubble (error messages)
         },
       },
       "light",
