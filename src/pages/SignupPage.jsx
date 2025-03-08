@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Eye,
   EyeOff,
@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { GlobalContext } from "../context/Context";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
@@ -39,7 +43,9 @@ const SignupPage = () => {
 
     return true;
   };
-
+  useEffect(() => {
+    document.title = "Login - MsgNest";
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,13 +73,13 @@ const SignupPage = () => {
           fullName: formData.fullName,
           passkey: formData.password,
           email: formData.email,
-          profilePic: "", 
+          profilePic: "",
         });
 
-        await set(ref(realtimeDb, 'users/' + user.uid), {
+        await set(ref(realtimeDb, "users/" + user.uid), {
           fullName: formData.fullName,
           email: formData.email,
-          online: true, 
+          online: true,
           lastSeen: serverTimestamp(),
         });
 
@@ -114,7 +120,7 @@ const SignupPage = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User  className="size-5 text-base-content/40" />
+                  <User className="size-5 text-base-content/40" />
                 </div>
                 <input
                   type="text"
@@ -209,7 +215,9 @@ const SignupPage = () => {
       {/* Right Side */}
       <AuthImagePattern
         title="Join our community"
-        subtitle={"Connect with friends, share moments, and stay in touch with your loved ones."}
+        subtitle={
+          "Connect with friends, share moments, and stay in touch with your loved ones."
+        }
       />
     </div>
   );

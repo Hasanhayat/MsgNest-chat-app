@@ -10,7 +10,7 @@ import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import SettingsPage from "./pages/SettingsPage";
-// import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/ProfilePage";
 import { useThemeStore } from "./store/useThemeStore";
 import { GlobalContext } from "./context/Context";
 
@@ -56,7 +56,7 @@ const App = () => {
         <Route path='/signup' element={!state.isLogin ? <SignupPage /> : <Navigate to="/" />} />
         <Route path='/login' element={!state.isLogin ? <LoginPage /> : <Navigate to="/" />} />
         <Route path='/settings' element={<SettingsPage />} />
-        {/* <Route path='/profile' element={state.isLogin ? <ProfilePage /> : <Navigate to="/login" />} /> */}
+        <Route path='/profile' element={state.isLogin ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
 
       <Toaster position="top-center" reverseOrder={false} />

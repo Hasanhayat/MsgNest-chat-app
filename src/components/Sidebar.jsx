@@ -19,7 +19,8 @@ const Sidebar = () => {
   } = useChatStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const auth = getAuth();
-  const [lastSeen, setLastSeen] = useState(null);
+  const [lastSeenMap, setLastSeenMap] = useState({});
+
 
 
   useEffect(() => {
@@ -28,16 +29,24 @@ const Sidebar = () => {
   }, [getUsers, getOnlineUsers]);
 
   useEffect(() => {
-    if (selectedUser) {
-      const userRef = ref(realtimeDb, `users/${selectedUser.id}/lastSeen`);
-      const unsubscribe = onValue(userRef, (snapshot) => {
-        if (snapshot.exists()) {
-          setLastSeen(snapshot.val());
-        }
+    if (users.length) {
+      const unsubscribes = users.map((user) => {
+        const userRef = ref(realtimeDb, `users/${user.id}/lastSeen`);
+        return onValue(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setLastSeenMap((prev) => ({
+              ...prev,
+              [user.id]: snapshot.val(),
+            }));
+          }
+        });
       });
-      // return () => unsubscribe(); // Clean-up on unmount
+
+      // Cleanup listeners
+      return () => unsubscribes.forEach((unsub) => unsub());
     }
-  }, [selectedUser]);
+  }, [users]);
+;
 
   // Last seen ko readable format mein convert karna
   const formatLastSeen = (timestamp) => {
@@ -126,7 +135,7 @@ const Sidebar = () => {
                 <div className="text-sm text-zinc-400">
                   {isOnline
                     ? "Online"
-                    : `${formatLastSeen(lastSeen)}`}
+                    : `${formatLastSeen(lastSeenMap[user.id])}`}
                 </div>
               </div>
             </button>
