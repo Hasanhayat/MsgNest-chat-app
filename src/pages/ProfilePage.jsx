@@ -1,8 +1,22 @@
 import { useState, useEffect } from "react";
 import { Camera, Mail, User } from "lucide-react";
-import { getAuth, updateProfile, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import {
+  getAuth,
+  updateProfile,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 import { db, realtimeDb } from "../firebase";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { ref, remove } from "firebase/database";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -72,7 +86,7 @@ const ProfilePage = () => {
           undone.
         </p>
         <div className="flex flex-col gap-4 mt-4">
-           <input
+          <input
             type="password"
             placeholder="Enter your password"
             onChange={(e) => setPassword(e.target.value)}
@@ -102,13 +116,32 @@ const ProfilePage = () => {
   };
 
   const confirmDeleteAccount = async () => {
-      if (!password) return toast.error("Please enter your password.");
-      toast.loading("Deleting");
-
+    if (!password) return toast.error("Please enter your password.");
+    toast.loading("Deleting");
 
     try {
       const credential = EmailAuthProvider.credential(authUser.email, password);
       await reauthenticateWithCredential(authUser, credential);
+
+      // Delete all user messages where the user is either sender or receiver
+      const messagesQuery = query(
+        collection(db, "messages"),
+        where("senderId", "==", authUser.uid)
+      );
+      const receiverQuery = query(
+        collection(db, "messages"),
+        where("receiverId", "==", authUser.uid)
+      );
+
+      const deleteMessages = async (messageQuery) => {
+        const messagesSnapshot = await getDocs(messageQuery);
+        messagesSnapshot.forEach(async (messageDoc) => {
+          await deleteDoc(messageDoc.ref);
+        });
+      };
+
+      await deleteMessages(messagesQuery);
+      await deleteMessages(receiverQuery);
 
       const userDocRef = doc(db, "users", authUser.uid);
       const userStatusRef = ref(realtimeDb, `users/${authUser.uid}`);
