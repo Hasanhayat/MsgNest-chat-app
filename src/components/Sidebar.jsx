@@ -4,6 +4,8 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { User } from "lucide-react";
 import { getAuth } from "firebase/auth";
 import moment from "moment";
+import { onValue, ref } from "firebase/database";
+import { realtimeDb } from "../firebase";
 
 const Sidebar = () => {
   const {
@@ -17,11 +19,25 @@ const Sidebar = () => {
   } = useChatStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const auth = getAuth();
+  const [lastSeen, setLastSeen] = useState(null);
+
 
   useEffect(() => {
     getUsers(selectedUser);
     getOnlineUsers(); // Fetch online users
   }, [getUsers, getOnlineUsers]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      const userRef = ref(realtimeDb, `users/${selectedUser.id}/lastSeen`);
+      const unsubscribe = onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setLastSeen(snapshot.val());
+        }
+      });
+      return () => unsubscribe(); // Clean-up on unmount
+    }
+  }, [selectedUser]);
 
   // Last seen ko readable format mein convert karna
   const formatLastSeen = (timestamp) => {
@@ -110,7 +126,7 @@ const Sidebar = () => {
                 <div className="text-sm text-zinc-400">
                   {isOnline
                     ? "Online"
-                    : `${formatLastSeen(user.lastSeen)}`}
+                    : `${formatLastSeen(lastSeen)}`}
                 </div>
               </div>
             </button>

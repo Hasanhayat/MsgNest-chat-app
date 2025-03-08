@@ -17,12 +17,12 @@ const ChatContainer = () => {
   const auth = getAuth(); // Firebase Auth se current user lana
   const messagesEndRef = useRef(null); // Scroll reference
 
-  // ✅ Scroll to bottom function
+  // Scroll to bottom function
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ✅ Jab selectedUser ya messages update hon to neeche scroll karo
+  // Jab selectedUser ya messages update hon to neeche scroll karo
   useEffect(() => {
     if (selectedUser) {
       const unsubscribe = getMessages(selectedUser.id);
@@ -34,7 +34,7 @@ const ChatContainer = () => {
     scrollToBottom(); // Messages update hone par neeche scroll
   }, [messages]);
 
-  // ✅ Message ka time format karna
+  // Message ka time format karna
   function formatMessageTime(timestamp) {
     if (!timestamp) return "Just Now";
 
@@ -125,11 +125,9 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
-        {/* ✅ Scroll anchor for auto-scroll */}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input */}
       <MessageInput />
     </div>
   );
