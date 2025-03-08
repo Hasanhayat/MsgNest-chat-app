@@ -1,8 +1,23 @@
 import { X } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
+import moment from "moment";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser, onlineUsers } = useChatStore(); // Get onlineUsers from useChatStore
+  const { selectedUser, setSelectedUser, onlineUsers } = useChatStore();
+
+  // Last seen formatting function
+  const formatLastSeen = (timestamp) => {
+    const lastSeenTime = moment(timestamp);
+    const isToday = lastSeenTime.isSame(moment(), "day");
+
+    return isToday
+      ? `Offline until Today  ${lastSeenTime.format(" h:mm A")}`
+      : `Offline until  ${lastSeenTime.format(" D MMMM, YYYY - h:mm A")}`;
+  };
+
+  const isOnline = onlineUsers.some(
+    (onlineUser) => onlineUser.id === selectedUser?.id
+  );
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -22,11 +37,7 @@ const ChatHeader = () => {
           <div>
             <h3 className="font-medium">{selectedUser?.fullName}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.some(
-                (onlineUser) => onlineUser.id === selectedUser?.id
-              )
-                ? "Online"
-                : "Offline"}
+              {isOnline ? "Online" : formatLastSeen(selectedUser?.lastSeen)}
             </p>
           </div>
         </div>

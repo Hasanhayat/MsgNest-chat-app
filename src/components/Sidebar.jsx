@@ -3,6 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { User } from "lucide-react";
 import { getAuth } from "firebase/auth";
+import moment from "moment";
 
 const Sidebar = () => {
   const {
@@ -21,6 +22,21 @@ const Sidebar = () => {
     getUsers(selectedUser);
     getOnlineUsers(); // Fetch online users
   }, [getUsers, getOnlineUsers]);
+
+  // Last seen ko readable format mein convert karna
+  const formatLastSeen = (timestamp) => {
+    const now = moment(); // Current date and time
+    const lastSeen = moment(timestamp);
+  
+    // Agar aaj ka din hai dikhayein
+    if (now.isSame(lastSeen, "day")) {
+      return `Today ${lastSeen.format("hh:mm A")}`;
+    }
+  
+    // Warna pura date aur time
+    return lastSeen.format("D MMMM, YY - hh:mm A");
+  };
+  
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) =>
@@ -55,46 +71,51 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.map((user) => (
-          <button
-            key={user.id}
-            onClick={() => setSelectedUser(user)}
-            className={`
-              w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
-              ${
-                selectedUser?.id === user.id
-                  ? "bg-base-300 ring-1 ring-base-300"
-                  : ""
-              }
-            `}
-          >
-            <div className="relative mx-auto lg:mx-0">
-              <img
-                src={user.profilePic || "/avatar.png"}
-                alt={user.name}
-                className="size-12 object-cover rounded-full"
-              />
-              {onlineUsers?.some((onlineUser) => onlineUser.id === user.id) && (
-                <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
-    rounded-full ring-2 ring-zinc-900"
+        {filteredUsers.map((user) => {
+          const isOnline = onlineUsers?.some(
+            (onlineUser) => onlineUser.id === user.id
+          );
+          return (
+            <button
+              key={user.id}
+              onClick={() => setSelectedUser(user)}
+              className={`
+                w-full p-3 flex items-center gap-3
+                hover:bg-base-300 transition-colors
+                ${
+                  selectedUser?.id === user.id
+                    ? "bg-base-300 ring-1 ring-base-300"
+                    : ""
+                }
+              `}
+            >
+              <div className="relative mx-auto lg:mx-0">
+                <img
+                  src={user.profilePic || "/avatar.png"}
+                  alt={user.name}
+                  className="size-12 object-cover rounded-full"
                 />
-              )}
-            </div>
-            <div className="hidden lg:block text-left min-w-0">
-              <div className="font-medium truncate">
-                {user.fullName}
-                {user.id == auth.currentUser.uid ? " (You)" : null}
+                {isOnline && (
+                  <span
+                    className="absolute bottom-0 right-0 size-3 bg-green-500 
+                  rounded-full ring-2 ring-zinc-900"
+                  />
+                )}
               </div>
-              <div className="text-sm text-zinc-400">
-                {onlineUsers?.some((onlineUser) => onlineUser.id === user.id)
-                  ? "Online"
-                  : "Offline"}
+              <div className="hidden lg:block text-left min-w-0">
+                <div className="font-medium truncate">
+                  {user.fullName}
+                  {user.id === auth.currentUser.uid ? " (You)" : null}
+                </div>
+                <div className="text-sm text-zinc-400">
+                  {isOnline
+                    ? "Online"
+                    : `${formatLastSeen(user.lastSeen)}`}
+                </div>
               </div>
-            </div>{" "}
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </aside>
   );

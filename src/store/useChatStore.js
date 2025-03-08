@@ -11,6 +11,7 @@ import {
   addDoc,
   onSnapshot,
   serverTimestamp,
+  Timestamp,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
@@ -93,7 +94,7 @@ export const useChatStore = create((set, gets) => ({
       await addDoc(collection(db, "messages"), {
         ...messageData,
         receiverId: selectedUser.id, // Assuming selectedUser  has an id
-        createdAt: serverTimestamp(),
+        createdAt: Timestamp.now(),
         senderId: auth.currentUser.uid,
       });
     } catch (error) {
@@ -109,8 +110,12 @@ export const useChatStore = create((set, gets) => ({
     onValue(usersRef, (snapshot) => {
       const users = snapshot.val();
       const onlineUsers = Object.keys(users)
-        .map((uid) => ({ id: uid, ...users[uid] }))
-        .filter((user) => user.online && user.id !== auth.currentUser.uid);
+      .map((uid) => ({
+        id: uid,
+        fullName: users[uid].fullName,
+        online: users[uid].online || false,
+        lastSeen: users[uid].lastSeen || null,
+      })).filter((user) => user.online && user.id !== auth.currentUser.uid);
   
       set({ onlineUsers }); // Online users state ko update karna
     }, (error) => {

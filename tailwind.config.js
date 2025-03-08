@@ -23,16 +23,6 @@ export default {
           success: "#4caf50", // Green for success messages
           warning: "#ff9800", // Orange for warnings
           error: "#f44336", // Red for error messages
-      
-          // Chat bubble colors
-          "chat-bubble-neutral": "#1a1a1a", // Neutral color for chat bubble
-          "chat-bubble-primary": "#ff4081", // Primary color for chat bubble (sent messages)
-          "chat-bubble-secondary": "#2a2a2a", // Secondary color for chat bubble (received messages)
-          "chat-bubble-accent": "#ff4081", // Accent color for chat bubble (highlighted messages)
-          "chat-bubble-info": "#2196f3", // Info color for chat bubble (informational messages)
-          "chat-bubble-success": "#4caf50", // Success color for chat bubble (successful actions)
-          "chat-bubble-warning": "#ff9800", // Warning color for chat bubble (warnings)
-          "chat-bubble-error": "#f44336", // Error color for chat bubble (error messages)
         },
       },
       "light",
