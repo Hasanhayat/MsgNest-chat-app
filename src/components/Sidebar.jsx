@@ -35,7 +35,7 @@ const Sidebar = () => {
           setLastSeen(snapshot.val());
         }
       });
-      return () => unsubscribe(); // Clean-up on unmount
+      // return () => unsubscribe(); // Clean-up on unmount
     }
   }, [selectedUser]);
 
