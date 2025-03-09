@@ -41,22 +41,35 @@ const App = () => {
     });
   }, []);
 
-  if (loading) return (
-    <div className='flex items-center justify-center h-screen'>
-      <Loader className="size-10 animate-spin" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
 
   return (
     <div data-theme={theme}>
       <Navbar />
 
       <Routes>
-        <Route path='/' element={state.isLogin ? <HomePage /> : <Navigate to="/login" />} />
-        <Route path='/signup' element={!state.isLogin ? <SignupPage /> : <Navigate to="/" />} />
-        <Route path='/login' element={!state.isLogin ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path='/settings' element={<SettingsPage />} />
-        <Route path='/profile' element={state.isLogin ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route
+          path="/"
+          element={state.isLogin ? <HomePage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/signup"
+          element={!state.isLogin ? <SignupPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/login"
+          element={!state.isLogin ? <LoginPage /> : <Navigate to="/" />}
+        />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/profile"
+          element={state.isLogin ? <ProfilePage /> : <Navigate to="/login" />}
+        />
       </Routes>
 
       <Toaster position="top-center" reverseOrder={false} />

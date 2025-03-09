@@ -91,7 +91,7 @@ const ProfilePage = () => {
             placeholder="Enter your password"
             onChange={(e) => setPassword(e.target.value)}
             // value={password}
-            className="p-2 border rounded-lg w-full"
+            className="p-2 border rounded-lg w-full text-primary"
           />
           <div className="flex justify-end gap-2">
             <button
