@@ -6,6 +6,8 @@ import { useChatStore } from "../store/useChatStore";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
 import { getDatabase, ref, set, onDisconnect } from "firebase/database";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const HomePage = () => {
   const { selectedUser, getOnlineUsers } = useChatStore();
@@ -38,11 +40,18 @@ const HomePage = () => {
       });
     };
   }, [auth, getOnlineUsers]);
+  useGSAP(() => {
+    gsap.from("#box4" , {
+      x: 2000,
+      duration: 3,
+      delay: 1,
+    });
+  })
 
   return (
     <div className="h-screen bg-base-200">
       <div className="flex items-center justify-center pt-20 px-4">
-        <div className="bg-base-100 rounded-lg shadow-xl w-full max-w-6xl h-[calc(100vh-6rem)]">
+        <div className="bg-base-100 rounded-lg shadow-xl w-full max-w-6xl h-[calc(100vh-6rem)]" id="box4">
           <div className="flex h-full rounded-lg overflow-hidden">
             <Sidebar />
             {!selectedUser ? <NoChatSelected /> : <ChatContainer />}

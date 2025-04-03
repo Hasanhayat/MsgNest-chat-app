@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "axios": "^1.7.7",
     "chat-app": "file:..",
     "firebase": "^11.4.0",
+    "gsap": "^3.12.7",
     "lucide-react": "^0.460.0",
     "moment": "^2.30.1",
     "react": "^18.3.1",

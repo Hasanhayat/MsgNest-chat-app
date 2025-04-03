@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 import toast from "react-hot-toast";
 import { GlobalContext } from "../context/Context";
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,11 +57,18 @@ const LoginPage = () => {
     }
   };
 
+  useGSAP(() => {
+    gsap.from("#box1" , {
+      x: -2000,
+      duration: 3,
+      delay: 1,
+    });
+  })
   return (
     <div className="min-h-[100vh - 64px]  grid lg:grid-cols-2">
       {/* Left Side - Form */}
       <div className="flex h-screen flex-col justify-center items-center p-6 sm:p-12">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-8" id='box1'>
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">

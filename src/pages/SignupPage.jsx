@@ -20,6 +20,8 @@ import AuthImagePattern from "../components/AuthImagePattern";
 import { doc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
 import { realtimeDb } from "../firebase";
 import { ref, set } from "firebase/database";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const SignupPage = () => {
   const db = getFirestore();
@@ -93,12 +95,18 @@ const SignupPage = () => {
       }
     }
   };
-
+  useGSAP(() => {
+    gsap.from("#box3" , {
+      x: -2000,
+      duration: 3,
+      delay: 1,
+    });
+  })
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-8" id="box3">
           {/* LOGO */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
