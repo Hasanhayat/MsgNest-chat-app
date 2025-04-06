@@ -10,8 +10,6 @@ const AuthImagePattern = ({ title, subtitle }) => {
       ease: "power2.out", 
       scale: 0.5,
       opacity: 0,
-      stagger: 0.2, 
-      
     });
 
   })
