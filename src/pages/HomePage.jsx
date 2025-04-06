@@ -42,9 +42,9 @@ const HomePage = () => {
   }, [auth, getOnlineUsers]);
   useGSAP(() => {
     gsap.from("#box4" , {
-      x: 2000,
-      duration: 3,
-      delay: 1,
+      x: -1000,
+      duration: 2,
+      delay: 0,
     });
   })
 

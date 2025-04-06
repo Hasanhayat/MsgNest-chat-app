@@ -97,9 +97,9 @@ const SignupPage = () => {
   };
   useGSAP(() => {
     gsap.from("#box3" , {
-      x: -2000,
-      duration: 3,
-      delay: 1,
+      x: -1000,
+      duration: 2,
+      delay: 0,
     });
   })
   return (

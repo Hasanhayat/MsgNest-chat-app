@@ -4,10 +4,14 @@ import gsap from "gsap";
 const AuthImagePattern = ({ title, subtitle }) => {
   useGSAP(() => {
     gsap.from("#box2" , {
-      x: 2000,
-      duration: 3,
-      delay: 4,
-      // overflowY: "hidden",
+      x: 1000,
+      duration: 2,
+      delay: 0,
+      ease: "power2.out", 
+      scale: 0.5,
+      opacity: 0,
+      stagger: 0.2, 
+      
     });
 
   })
