@@ -81,19 +81,7 @@ const Sidebar = () => {
       },
     });
   };
-  const handleUpdateGroup = (groupId, oldvalues) => {
-    showGroupFormToast({
-      defaultValues: oldvalues,
-      onSubmit: (groupData) => {
-        if (!groupData.members.includes(auth.currentUser.uid)) {
-          groupData.members.push(auth.currentUser.uid);
-        }
-        updateGroup(groupId, groupData);
-        getGroups();
-        setSelectedGroup(null);
-      },
-    });
-  };
+  
   const handleGroupClick = (group) => {
     if (group.id === selectedGroup?.id) {
       setSelectedGroup(null);
@@ -169,23 +157,14 @@ const Sidebar = () => {
           </label>
           {showGroups ? (
             <div>
-              {selectedGroup ? (
-                <button
-                  onClick={() =>
-                    handleUpdateGroup(selectedGroup.id, selectedGroup)
-                  }
-                  className="btn btn-sm btn-primary"
-                >
-                  Update group
-                </button>
-              ) : (
+              {!selectedGroup ? (
                 <button
                   onClick={handleCreateGroup}
                   className="btn btn-sm btn-primary"
                 >
                   Create group
                 </button>
-              )}
+              ) : null}
             </div>
           ) : null}
         </div>

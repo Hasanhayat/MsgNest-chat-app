@@ -14,11 +14,12 @@ import {
   Timestamp,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
 
-const auth = getAuth()
+const auth = getAuth();
 
 export const useChatStore = create((set, gets) => ({
   messages: [],
@@ -31,7 +32,6 @@ export const useChatStore = create((set, gets) => ({
   groups: [],
   isGroupsLoading: false,
   selectedGroup: null,
-
 
   setSelectedGroup: (selectedGroup) => set({ selectedGroup }),
 
@@ -62,6 +62,22 @@ export const useChatStore = create((set, gets) => ({
       toast.error("Failed to update group");
     }
   },
+
+  deleteGroup: async (groupId) => {
+    try {
+      const groupRef = doc(db, "groups", groupId);
+      await deleteDoc(groupRef);
+      set((state) => ({
+        groups: state.groups.filter((group) => group.id !== groupId),
+        selectedGroup: null, // Clear selected group if deleted
+      }));
+      toast.success("Group deleted successfully");
+    } catch (error) {
+      console.error("Error deleting group: ", error);
+      toast.error("Failed to delete group");
+    }
+  },
+
   getGroups: async () => {
     set({ isGroupsLoading: true });
     try {
@@ -122,9 +138,7 @@ export const useChatStore = create((set, gets) => ({
     } catch (error) {
       toast.error("Failed to send message");
     }
-  }
-  ,
-
+  },
   getUsers: async (userId) => {
     set({ isUsersLoading: true });
     try {
@@ -133,26 +147,26 @@ export const useChatStore = create((set, gets) => ({
       const usersList = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));      
-      const filteredUserList = usersList.filter(user => user.id !== auth.currentUser.uid);
-      
+      }));
+      const filteredUserList = usersList.filter(
+        (user) => user.id !== auth.currentUser.uid
+      );
+
       set({ users: filteredUserList, isUsersLoading: false });
-      
-    } catch (error) {      
+    } catch (error) {
       toast.error("Failed to load users");
     } finally {
       set({ isUsersLoading: false });
     }
   },
-  
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
 
+  setSelectedUser: (selectedUser) => set({ selectedUser }),
 
   getMessages: (userId) => {
     set({ isMessagesLoading: true });
     const messagesCollection = collection(db, "messages");
     const messagesQuery = query(
-      messagesCollection,
+      messagesCollection
       // where("receiverId", "==", auth.currentUser.uid),
       // where("senderId", "==", userId),
       // where("receiverId", "==", userId),
@@ -166,11 +180,13 @@ export const useChatStore = create((set, gets) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        messagesList = messagesList.filter(msg => 
-          (msg.receiverId === userId || msg.receiverId === auth.currentUser.uid) &&
-          (msg.senderId === userId || msg.senderId === auth.currentUser.uid)
+        messagesList = messagesList.filter(
+          (msg) =>
+            (msg.receiverId === userId ||
+              msg.receiverId === auth.currentUser.uid) &&
+            (msg.senderId === userId || msg.senderId === auth.currentUser.uid)
         );
-        
+
         messagesList.sort((a, b) => {
           const dateA = a.createdAt?.seconds || 0;
           const dateB = b.createdAt?.seconds || 0;
@@ -201,25 +217,28 @@ export const useChatStore = create((set, gets) => ({
     }
   },
 
-
   // New method to get online users
   getOnlineUsers: () => {
     const usersRef = ref(realtimeDb, "users");
-  
-    onValue(usersRef, (snapshot) => {
-      const users = snapshot.val();
-      const onlineUsers = Object.keys(users)
-      .map((uid) => ({
-        id: uid,
-        fullName: users[uid].fullName,
-        online: users[uid].online || false,
-        lastSeen: users[uid].lastSeen || null,
-      })).filter((user) => user.online && user.id !== auth.currentUser.uid);
-  
-      set({ onlineUsers }); // Online users state ko update karna
-    }, (error) => {
-      toast.error("Failed to load online users");
-    });
+
+    onValue(
+      usersRef,
+      (snapshot) => {
+        const users = snapshot.val();
+        const onlineUsers = Object.keys(users)
+          .map((uid) => ({
+            id: uid,
+            fullName: users[uid].fullName,
+            online: users[uid].online || false,
+            lastSeen: users[uid].lastSeen || null,
+          }))
+          .filter((user) => user.online && user.id !== auth.currentUser.uid);
+
+        set({ onlineUsers }); // Online users state ko update karna
+      },
+      (error) => {
+        toast.error("Failed to load online users");
+      }
+    );
   },
-  
 }));
