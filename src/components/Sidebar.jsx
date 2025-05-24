@@ -71,12 +71,12 @@ const Sidebar = () => {
 
   const handleCreateGroup = () => {
     showGroupFormToast({
-      // users: users,
       onSubmit: (groupData) => {
         if (!groupData.members.includes(auth.currentUser.uid)) {
           groupData.members.push(auth.currentUser.uid);
         }
         createGroup(groupData);
+        setSelectedGroup(null);
         getGroups();
       },
     });
@@ -90,6 +90,7 @@ const Sidebar = () => {
         }
         updateGroup(groupId, groupData);
         getGroups();
+        setSelectedGroup(null);
       },
     });
   };
@@ -214,6 +215,10 @@ const Sidebar = () => {
                     src={user.profilePic || "/avatar.png"}
                     alt={user.name}
                     className="size-12 object-cover rounded-full"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      e.target.src = "/avatare.png"; // Yeh aapki default image ka path hoga
+                    }}
                   />
                   {isOnline && (
                     <span
@@ -259,6 +264,10 @@ const Sidebar = () => {
                     src={group.groupPic || "/avatar.png"}
                     alt={group.name}
                     className="size-12 object-cover rounded-full"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      e.target.src = "/group.png"; // Yeh aapki default image ka path hoga
+                    }}
                   />
                 </div>
                 <div className="hidden lg:block text-left min-w-0">

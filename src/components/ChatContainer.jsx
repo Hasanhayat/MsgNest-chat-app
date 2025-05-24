@@ -130,6 +130,10 @@ const ChatContainer = () => {
                   src={message.image}
                   alt="Attachment"
                   className="sm:max-w-[200px] rounded-md mb-2"
+                  onError={(e) => {
+                    e.target.onerror = null; // Prevent infinite loop
+                    e.target.src = "/fallback-image.png"; // Yeh aapki default image ka path hoga
+                  }}
                 />
               )}
               {message.text && <p>{message.text}</p>}

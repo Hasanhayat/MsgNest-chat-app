@@ -1,68 +1,113 @@
 import toast from "react-hot-toast";
-import Select from "react-select";
 import { useChatStore } from "../store/useChatStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const showGroupFormToast = ({ onSubmit, defaultValues = {} }) => {
-  let groupName = defaultValues.name || "";
-  let groupPic = defaultValues.groupPic || "";
-  let selectedMembers = defaultValues.members || [];
-  const { users } = useChatStore.getState();
+  toast.custom((t) => (
+    <GroupFormContent t={t} onSubmit={onSubmit} defaultValues={defaultValues} />
+  ));
+};
 
-  toast((t) => (
-    <div className="bg-zinc-900 text-white p-4 rounded-lg w-[300px]">
-      <h2 className="text-xl font-bold mb-2">
+const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
+  const { users } = useChatStore();
+
+  // Form state with reset capability
+  const [groupName, setGroupName] = useState(defaultValues.name || "");
+  const [groupPic, setGroupPic] = useState(defaultValues.groupPic || "");
+  const [selectedMembers, setSelectedMembers] = useState(
+    defaultValues.members || []
+  );
+
+  // Function to reset form fields to empty after submit
+  const resetForm = () => {
+    setGroupName("");
+    setGroupPic("");
+    setSelectedMembers([]);
+  };
+
+  const handleSave = () => {
+    onSubmit({
+      name: groupName,
+      groupPic: groupPic || "/group.png",
+      members: selectedMembers,
+    });
+    toast.dismiss(t.id); // close toast after save
+    resetForm(); // clear the form after submit
+  };
+
+  const handleCancel = () => {
+    toast.dismiss(t.id); // just close toast without saving
+    resetForm();
+  };
+  const handleOption = (user) => {
+    selectedusers.push(user);
+    console.log(selectedusers, selectedMembers);
+  };
+
+  return (
+    <div className="bg-zinc-900 text-white p-5 rounded-2xl w-[300px] shadow-xl">
+      <h2 className="text-2xl font-semibold mb-4">
         {defaultValues.name ? "Update Group" : "Create Group"}
       </h2>
-      <input
-        type="text"
-        placeholder="Group name"
-        className="w-full mb-2 p-2 rounded bg-zinc-800 border border-zinc-700"
-        defaultValue={groupName}
-        onChange={(e) => (groupName = e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Image URL"
-        className="w-full mb-2 p-2 rounded bg-zinc-800 border border-zinc-700"
-        defaultValue={groupPic}
-        onChange={(e) => (groupPic = e.target.value)}
-      />
-      <Select
-        isMulti
-        options={users.map((u) => ({
-          value: u.uid,
-          label: u.fullName,
-        }))}
-        defaultValue={users
-          .filter((u) => selectedMembers.includes(u.uid))
-          .map((u) => ({ value: u.uid, label: u.name }))}
-        onChange={(selected) => {
-          selectedMembers = selected.map((s) => s.value);
-        }}
-        className="text-black mb-3"
-      />
-      <div className="flex justify-end gap-2">
-        <button
-          className="bg-green-600 text-white px-3 py-1 rounded"
-          onClick={() => {
-            toast.dismiss(t.id);
-            onSubmit({
-              name: groupName,
-              groupPic: groupPic || "/group.png",
-              members: selectedMembers.length > 0 ? selectedMembers : [],
-            });
-          }}
-        >
-          Save
-        </button>
-        <button
-          className="bg-gray-600 text-white px-3 py-1 rounded"
-          onClick={() => toast.dismiss(t.id)}
-        >
-          Cancel
-        </button>
+
+      <div className="flex flex-col gap-4">
+        <input
+          type="text"
+          placeholder="Enter group name"
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)}
+          className="p-3 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-gray-400"
+        />
+
+        <input
+          type="text"
+          placeholder="Enter image URL"
+          value={groupPic}
+          onChange={(e) => setGroupPic(e.target.value)}
+          className="p-3 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-gray-400"
+        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Select Members
+          </label>
+          <div className="flex items-center gap-2 mb-2 flex-col overflow-y-scroll h-32 p-2 bg-zinc-800 border border-zinc-700 rounded-lg">
+            {users.map((user) => (
+              <>
+                <input
+                  key={user.id}
+                  type="button"
+                  value={user.fullName}
+                  disabled={selectedMembers.includes(user.id)}
+                  className="btn btn-square w-full"
+                  onClick={() => {
+                    setSelectedMembers((prev) =>
+                      prev.includes(user.uid)
+                        ? prev.filter((id) => id !== user.uid)
+                        : [...prev, user.id]
+                    );
+                  }}
+                />
+              </>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            className="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg font-semibold"
+            onClick={handleSave}
+          >
+            Save
+          </button>
+          <button
+            className="bg-gray-700 hover:bg-gray-800 transition text-white px-4 py-2 rounded-lg font-medium"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
-  ));
+  );
 };

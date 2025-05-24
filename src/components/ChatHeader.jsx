@@ -49,13 +49,21 @@ const ChatHeader = () => {
             <div className="size-10 rounded-full relative">
               {selectedGroup ? (
                 <img
-                  src={selectedGroup?.groupPic || "/avatar.png"}
+                  src={selectedGroup?.groupPic || "/group.png"}
                   alt={selectedGroup?.groupName}
+                  onError={(e) => {
+                    e.target.onerror = null; // Prevent infinite loop
+                    e.target.src = "/group.png"; // Yeh aapki default image ka path hoga
+                  }}
                 />
               ) : (
                 <img
                   src={selectedUser?.profilePic || "/avatar.png"}
                   alt={selectedUser?.fullName}
+                  onError={(e) => {
+                    e.target.onerror = null; // Prevent infinite loop
+                    e.target.src = "/avatar.png"; // Yeh aapki default image ka path hoga
+                  }}
                 />
               )}
             </div>
