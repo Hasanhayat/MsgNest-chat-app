@@ -6,7 +6,7 @@ import { realtimeDb } from "../firebase"; // Apna Firebase config import karo
 import moment from "moment";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser, onlineUsers } = useChatStore();
+  const { selectedUser, setSelectedUser, onlineUsers, selectedGroup, setSelectedGroup } = useChatStore();
   const [lastSeen, setLastSeen] = useState(null);
 
   //  Last seen formatting without moment.js
@@ -35,6 +35,10 @@ const ChatHeader = () => {
   const isOnline = onlineUsers.some(
     (onlineUser) => onlineUser.id === selectedUser?.id
   );
+  const handleClose = () => {
+    setSelectedUser(null);
+    setSelectedGroup(null);
+  }
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -43,24 +47,31 @@ const ChatHeader = () => {
           {/* Avatar */}
           <div className="avatar">
             <div className="size-10 rounded-full relative">
-              <img
-                src={selectedUser?.profilePic || "/avatar.png"}
-                alt={selectedUser?.fullName}
-              />
+              {selectedGroup ? (
+                <img
+                  src={selectedGroup?.groupPic || "/avatar.png"}
+                  alt={selectedGroup?.groupName}
+                />
+              ) : (
+                <img
+                  src={selectedUser?.profilePic || "/avatar.png"}
+                  alt={selectedUser?.fullName}
+                />
+              )}
             </div>
           </div>
 
           {/* User info */}
           <div>
-            <h3 className="font-medium">{selectedUser?.fullName}</h3>
-            <p className="text-sm text-base-content/70">
+            <h3 className="font-medium">{selectedUser ? selectedUser.fullName : selectedGroup.name}</h3>
+            {/* <p className="text-sm text-base-content/70">
               {isOnline ? "Online" : formatLastSeen(lastSeen)}
-            </p>
+            </p> */}
           </div>
         </div>
 
         {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
+        <button onClick={handleClose} className="btn btn-ghost btn-circle">
           <X />
         </button>
       </div>
@@ -69,3 +80,4 @@ const ChatHeader = () => {
 };
 
 export default ChatHeader;
+

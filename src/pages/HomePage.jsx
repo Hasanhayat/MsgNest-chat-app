@@ -2,6 +2,7 @@ import { serverTimestamp } from "firebase/database";
 import ChatContainer from "../components/ChatContainer";
 import NoChatSelected from "../components/NoChatSelected";
 import Sidebar from "../components/Sidebar";
+import GroupContainer from "../components/GroupContainer";
 import { useChatStore } from "../store/useChatStore";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
@@ -10,7 +11,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 const HomePage = () => {
-  const { selectedUser, getOnlineUsers } = useChatStore();
+  const { selectedUser, getOnlineUsers, selectedGroup } = useChatStore();
   const auth = getAuth();
   const db = getDatabase(); // Realtime Database ka reference lena
 
@@ -54,7 +55,8 @@ const HomePage = () => {
         <div className="bg-base-100 rounded-lg shadow-xl w-full max-w-6xl h-[calc(100vh-6rem)]" id="box4">
           <div className="flex h-full rounded-lg overflow-hidden">
             <Sidebar />
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            {/* {!selectedUser && !selectedGroup ? <NoChatSelected /> : <ChatContainer />} */}
+            {selectedUser ? <ChatContainer /> : selectedGroup ? <GroupContainer /> : <NoChatSelected />}
           </div>
         </div>
       </div>

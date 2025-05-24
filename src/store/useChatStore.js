@@ -12,6 +12,8 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
@@ -25,6 +27,103 @@ export const useChatStore = create((set, gets) => ({
   onlineUsers: [], // New state for online users
   isUsersLoading: false,
   isMessagesLoading: false,
+  // groups
+  groups: [],
+  isGroupsLoading: false,
+  selectedGroup: null,
+
+
+  setSelectedGroup: (selectedGroup) => set({ selectedGroup }),
+
+  createGroup: async (groupData) => {
+    const { selectedGroup } = gets();
+    try {
+      const groupRef = await addDoc(collection(db, "groups"), {
+        ...groupData,
+        createdAt: serverTimestamp(),
+        createdBy: auth.currentUser.uid,
+      });
+      set({ selectedGroup: { id: groupRef.id, ...groupData } });
+      toast.success("Group created successfully");
+    } catch (error) {
+      toast.error("Failed to create group");
+    }
+  },
+  updateGroup: async (groupId, groupData) => {
+    try {
+      const groupRef = doc(db, "groups", groupId);
+      await updateDoc(groupRef, {
+        ...groupData,
+        updatedAt: serverTimestamp(),
+      });
+      toast.success("Group updated successfully");
+    } catch (error) {
+      console.error("Error updating group: ", error);
+      toast.error("Failed to update group");
+    }
+  },
+  getGroups: async () => {
+    set({ isGroupsLoading: true });
+    try {
+      const groupsCollection = collection(db, "groups");
+      const groupsSnapshot = await getDocs(groupsCollection);
+      const groupsList = groupsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      set({ groups: groupsList, isGroupsLoading: false });
+    } catch (error) {
+      toast.error("Failed to load groups");
+    } finally {
+      set({ isGroupsLoading: false });
+    }
+  },
+  getGroupMessages: (groupId) => {
+    set({ isMessagesLoading: true });
+    const messagesCollection = collection(db, "messages");
+    const messagesQuery = query(
+      messagesCollection,
+      where("groupId", "==", groupId)
+    );
+    // Real-time updates
+    const unsubscribe = onSnapshot(
+      messagesQuery,
+      (querySnapshot) => {
+        let messagesList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        messagesList.sort((a, b) => {
+          const dateA = a.createdAt?.seconds || 0;
+          const dateB = b.createdAt?.seconds || 0;
+          return dateA - dateB; // oldest first
+        });
+        set({ messages: messagesList });
+        set({ isMessagesLoading: false });
+      },
+      (error) => {
+        toast.error("Failed to load messages");
+        set({ isMessagesLoading: false });
+      }
+    );
+    return unsubscribe;
+  },
+  sendGroupMessage: async (messageData) => {
+    const { selectedGroup } = gets();
+    try {
+      await addDoc(collection(db, "messages"), {
+        ...messageData,
+        groupId: selectedGroup.id, // Assuming selectedGroup has an id
+        createdAt: Timestamp.now(),
+        senderId: auth.currentUser.uid,
+        senderName: auth.currentUser.displayName || "Unknown User",
+        senderProfilePic: auth.currentUser.photoURL,
+      });
+    } catch (error) {
+      toast.error("Failed to send message");
+    }
+  }
+  ,
 
   getUsers: async (userId) => {
     set({ isUsersLoading: true });

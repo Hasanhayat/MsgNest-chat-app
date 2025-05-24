@@ -24,13 +24,13 @@ const ChatContainer = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Jab selectedUser ya messages update hon to neeche scroll karo
-  useEffect(() => {
-    if (selectedUser) {
-      const unsubscribe = getMessages(selectedUser.id);
-      return () => unsubscribe();
-    }
-  }, [selectedUser, getMessages]);
+  //   // Jab selectedUser ya messages update hon to neeche scroll karo
+  //   useEffect(() => {
+  //     if (selectedUser) {
+  //       const unsubscribe = getMessages(selectedUser.id);
+  //       return () => unsubscribe();
+  //     }
+  //   }, [selectedUser, getMessages]);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -96,9 +96,7 @@ const ChatContainer = () => {
               <div className="size-10 rounded-full border">
                 <img
                   src={
-                    message.senderId === selectedUser.id
-                      ? selectedUser.profilePic || "/avatar.png"
-                      : "/avatar.png"
+                    message.senderProfilePic || "/avatar.png" // Default avatar if not available
                   }
                   alt="profile pic"
                 />
@@ -107,9 +105,13 @@ const ChatContainer = () => {
 
             {/* Message Info */}
             <div className="chat-header mb-1 flex items-center gap-1">
-              {message.senderId === auth.currentUser.uid && (
+              {message.senderId === auth.currentUser.uid ? (
                 <span className="text-xs font-semibold text-green-400">
                   You
+                </span>
+              ) : (
+                <span className="text-xs font-semibold text-red-400">
+                  {message.senderName}
                 </span>
               )}
               <time className="text-xs opacity-50">
@@ -130,6 +132,10 @@ const ChatContainer = () => {
                   src={message.image}
                   alt="Attachment"
                   className="sm:max-w-[200px] rounded-md mb-2"
+                  onError={(e) => {
+                    e.target.onerror = null; // Prevent infinite loop
+                    e.target.src = "/fallback-image.png"; // Yeh aapki default image ka path hoga
+                  }}
                 />
               )}
               {message.text && <p>{message.text}</p>}
