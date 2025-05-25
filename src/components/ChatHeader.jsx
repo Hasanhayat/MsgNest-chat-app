@@ -7,6 +7,7 @@ import moment from "moment";
 import { showGroupFormToast } from "./CreateGroupForm";
 import { getAuth } from "firebase/auth";
 import toast from "react-hot-toast";
+import groupPng from "../../public/group.png"; // Default group image
 
 const ChatHeader = () => {
   const {
@@ -113,7 +114,7 @@ const ChatHeader = () => {
             <div className="size-10 rounded-full relative">
               {selectedGroup ? (
                 <img
-                  src={selectedGroup?.groupPic || "/group.png"}
+                  src={selectedGroup?.groupPic || groupPng}
                   alt={selectedGroup?.groupName}
                   onError={(e) => {
                     e.target.onerror = null; // Prevent infinite loop
@@ -147,13 +148,14 @@ const ChatHeader = () => {
         {/* update and delete group buttons */}
         <div className="flex gap-2 justify-end items-center">
           <div className="hidden lg:flex gap-2">
-            {selectedGroup && (
+            {selectedGroup &&
+            selectedGroup.members.includes(auth.currentUser.uid) ? (
               <>
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={() => {
                     const oldValues = {
-                      name: selectedGroup.groupName,
+                      name: selectedGroup.name,
                       groupPic: selectedGroup.groupPic,
                       members: selectedGroup.members,
                     };
@@ -171,7 +173,7 @@ const ChatHeader = () => {
                   Delete Group
                 </button>
               </>
-            )}
+            ) : null}
           </div>
 
           {/* Close button */}

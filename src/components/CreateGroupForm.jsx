@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { useChatStore } from "../store/useChatStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const showGroupFormToast = ({ onSubmit, defaultValues = {} }) => {
   toast.custom((t) => (
@@ -12,6 +12,13 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
   const { users } = useChatStore();
 
   // Form state with reset capability
+    const fileInputRef = useRef(null);
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset file input value    
+    }
+  }, [defaultValues]);
+  
   const [groupName, setGroupName] = useState(defaultValues.name || "");
   const [groupPic, setGroupPic] = useState(defaultValues.groupPic || "");
   const [selectedMembers, setSelectedMembers] = useState(
@@ -25,10 +32,57 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
     setSelectedMembers([]);
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setGroupPic(reader.result); // Set the image preview
+    };
+    reader.readAsDataURL(file);     
+  };
+
   const handleSave = () => {
+      if (!groupName.trim()) {
+      toast.error("Group name is required");
+      return;
+    }
+    if (selectedMembers.length < 2) {
+      toast.error("Please select at least one member");
+      return;
+    }
+    if (groupPic) {
+      // Upload image to Cloudinary
+      const formData = new FormData();
+      formData.append("file", groupPic);
+      formData.append("upload_preset", "msgnest");
+      formData.append("cloud_name", "dlkvzmnrt");
+      fetch("https://api.cloudinary.com/v1_1/dlkvzmnrt/image/upload", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.secure_url) {
+            setGroupPic(data.secure_url); // Set the uploaded image URL
+          } else {
+            toast.error("Failed to upload image");
+            return;
+          }
+        })
+        .catch((error) => {
+          console.error("Image upload error: ", error);
+          toast.error("Failed to upload image");
+          return;
+        });
+    }
     onSubmit({
       name: groupName,
-      groupPic: groupPic || "/group.png",
+      groupPic: groupPic,
       members: selectedMembers,
     });
     toast.dismiss(t.id); // close toast after save
@@ -38,10 +92,6 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
   const handleCancel = () => {
     toast.dismiss(t.id); // just close toast without saving
     resetForm();
-  };
-  const handleOption = (user) => {
-    selectedusers.push(user);
-    console.log(selectedusers, selectedMembers);
   };
 
   return (
@@ -60,10 +110,9 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
         />
 
         <input
-          type="text"
-          placeholder="Enter image URL"
-          value={groupPic}
-          onChange={(e) => setGroupPic(e.target.value)}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageChange(e)}
           className="p-3 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-gray-400"
         />
 
@@ -73,9 +122,8 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
           </label>
           <div className="flex items-center gap-2 mb-2 flex-col overflow-y-scroll h-32 p-2 bg-zinc-800 border border-zinc-700 rounded-lg">
             {users.map((user) => (
-              <>
+              <div key={user.id} className="w-full">
                 <input
-                  key={user.id}
                   type="button"
                   value={user.fullName}
                   disabled={selectedMembers.includes(user.id)}
@@ -88,7 +136,7 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
                     );
                   }}
                 />
-              </>
+              </div>
             ))}
           </div>
         </div>

@@ -240,7 +240,7 @@ const Sidebar = () => {
               >
                 <div className="relative mx-auto lg:mx-0">
                   <img
-                    src={group.groupPic || "/avatar.png"}
+                    src={group.groupPic || "/group.png"}
                     alt={group.name}
                     className="size-12 object-cover rounded-full"
                     onError={(e) => {
