@@ -8,12 +8,14 @@ import { showGroupFormToast } from "./CreateGroupForm";
 import { getAuth } from "firebase/auth";
 import toast from "react-hot-toast";
 import groupPng from "../../public/group.png"; // Default group image
+import { use } from "react";
 
 const ChatHeader = () => {
   const {
     selectedUser,
     setSelectedUser,
     onlineUsers,
+    getOnlineUsers,
     selectedGroup,
     setSelectedGroup,
     getGroups,
@@ -45,6 +47,9 @@ const ChatHeader = () => {
       return () => unsubscribe(); // Clean-up on unmount
     }
   }, [selectedUser]);
+  useEffect(() => {
+    getOnlineUsers();
+  }, [getOnlineUsers, selectedUser, selectedGroup]);
 
   const isOnline = onlineUsers.some(
     (onlineUser) => onlineUser.id === selectedUser?.id
@@ -139,9 +144,30 @@ const ChatHeader = () => {
             <h3 className="font-medium">
               {selectedUser ? selectedUser.fullName : selectedGroup.name}
             </h3>
-            {/* <p className="text-sm text-base-content/70">
-              {isOnline ? "Online" : formatLastSeen(lastSeen)}
-            </p> */}
+            <p className="text-sm text-base-content/70">
+              {selectedUser
+                ? isOnline
+                  ? "Online"
+                  : formatLastSeen(lastSeen)
+                : (() => {
+                    const onlineMemberIndexes = selectedGroup.members
+                      .map((memberId, idx) =>
+                        onlineUsers.some((user) => user.id === memberId)
+                          ? idx
+                          : null
+                      )
+                      .filter((idx) => idx !== null);
+
+                    if (onlineMemberIndexes.length > 0) {
+                      const onlineNames = onlineMemberIndexes.map(
+                        (idx) => selectedGroup.membersNames[idx]
+                      );
+                      return `Online Members: ${onlineNames.join(", ")}`;
+                    } else {
+                      return "No online members";
+                    }
+                  })()}
+            </p>
           </div>
         </div>
 
@@ -149,7 +175,7 @@ const ChatHeader = () => {
         <div className="flex gap-2 justify-end items-center">
           <div className="hidden lg:flex gap-2">
             {selectedGroup &&
-            selectedGroup.members.includes(auth.currentUser.uid) ? (
+            selectedGroup.createdBy == auth.currentUser.uid ? (
               <>
                 <button
                   className="btn btn-sm btn-primary"
@@ -158,6 +184,7 @@ const ChatHeader = () => {
                       name: selectedGroup.name,
                       groupPic: selectedGroup.groupPic,
                       members: selectedGroup.members,
+                      membersNames: selectedGroup.membersNames,
                     };
                     handleUpdateGroup(selectedGroup.id, oldValues);
                   }}

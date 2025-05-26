@@ -12,17 +12,20 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
   const { users } = useChatStore();
 
   // Form state with reset capability
-    const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
   useEffect(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset file input value    
+      fileInputRef.current.value = ""; // Reset file input value
     }
   }, [defaultValues]);
-  
+
   const [groupName, setGroupName] = useState(defaultValues.name || "");
   const [groupPic, setGroupPic] = useState(defaultValues.groupPic || "");
   const [selectedMembers, setSelectedMembers] = useState(
     defaultValues.members || []
+  );
+  const [membersNames, setMembersNames] = useState(
+    defaultValues.membersNames || []
   );
 
   // Function to reset form fields to empty after submit
@@ -43,15 +46,15 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
     reader.onloadend = () => {
       setGroupPic(reader.result); // Set the image preview
     };
-    reader.readAsDataURL(file);     
+    reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
-      if (!groupName.trim()) {
+    if (!groupName.trim()) {
       toast.error("Group name is required");
       return;
     }
-    if (selectedMembers.length < 2) {
+    if (selectedMembers.length < 1) {
       toast.error("Please select at least one member");
       return;
     }
@@ -84,6 +87,7 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
       name: groupName,
       groupPic: groupPic,
       members: selectedMembers,
+      membersNames: membersNames,
     });
     toast.dismiss(t.id); // close toast after save
     resetForm(); // clear the form after submit
@@ -133,6 +137,11 @@ const GroupFormContent = ({ t, onSubmit, defaultValues }) => {
                       prev.includes(user.uid)
                         ? prev.filter((id) => id !== user.uid)
                         : [...prev, user.id]
+                    );
+                    setMembersNames((prev) =>
+                      prev.includes(user.fullName)
+                        ? prev.filter((name) => name !== user.fullName)
+                        : [...prev, user.fullName]
                     );
                   }}
                 />

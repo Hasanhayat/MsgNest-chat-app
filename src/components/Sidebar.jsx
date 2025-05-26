@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { showGroupFormToast } from "./CreateGroupForm";
-import { User } from "lucide-react";
+import { User, Menu, X } from "lucide-react";
 import { getAuth } from "firebase/auth";
 import moment from "moment";
 import { onValue, ref, set } from "firebase/database";
 import { realtimeDb } from "../firebase";
+import toast from "react-hot-toast";
 
 const Sidebar = () => {
   const {
@@ -30,11 +31,12 @@ const Sidebar = () => {
   const [showGroups, setShowGroups] = useState(false);
   const auth = getAuth();
   const [lastSeenMap, setLastSeenMap] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     getGroups();
     getUsers(selectedUser);
-    getOnlineUsers(); // Fetch online users
+    getOnlineUsers();
   }, [getUsers, getOnlineUsers, getGroups, showGroups]);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ const Sidebar = () => {
       },
     });
   };
-  
+
   const handleGroupClick = (group) => {
     if (group.id === selectedGroup?.id) {
       setSelectedGroup(null);
@@ -113,24 +115,165 @@ const Sidebar = () => {
       setSelectedGroup(null);
     }
   };
+  const handleUpdateGroup = (groupId, oldvalues) => {
+    showGroupFormToast({
+      defaultValues: oldvalues,
+      onSubmit: (groupData) => {
+        if (!groupData.members.includes(auth.currentUser.uid)) {
+          groupData.members.push(auth.currentUser.uid);
+        }
+        updateGroup(groupId, groupData);
+        getGroups();
+        setSelectedGroup(null);
+      },
+    });
+  };
+  const handleDeleteGroup = (groupId) => {
+    toast((t) => (
+      <div className="p-4 bg-white shadow-lg rounded-lg">
+        <h3 className="font-semibold text-lg mb-2">Delete Group</h3>
+        <p className="mb-4">
+          Are you sure you want to delete this group? This action cannot be
+          undone.
+        </p>
+        <p className="text-sm text-gray-500 mb-4">
+          <strong>Group Name:</strong> {selectedGroup?.name || "N/A"}
+        </p>
+        <p className="text-sm text-gray-500 mb-4">
+          <strong>Members:</strong> {selectedGroup?.members.length || 0} members
+        </p>
+
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              deleteGroup(groupId);
+              setSelectedGroup(null);
+              setSelectedUser(null);
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ));
+  };
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) =>
         onlineUsers.some((onlineUser) => onlineUser.id === user.id)
       )
     : users;
+  const filteredGroups = groups.filter((group) =>
+    group.members.includes(auth.currentUser.uid)
+  );
 
   if (isUsersLoading || isGroupsLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
+        <div className="items-center gap-2 hidden lg:flex">
           <User className="size-6" />
           <span className="font-medium hidden lg:block">
             {showGroups ? "Groups" : "Contacts"}
           </span>
         </div>
+        <div className="lg:hidden">
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setMenuOpen(true)}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+        {menuOpen && (
+          <div className="fixed inset-0 bg-base-100 z-50 p-6 flex flex-col gap-6">
+            {/* Close Button */}
+            <div className="flex justify-end">
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Mobile Menu Items */}
+            <div className="flex flex-col gap-4">
+              {!showGroups && (
+                <label className="cursor-pointer flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={showOnlineOnly}
+                    onChange={(e) => setShowOnlineOnly(e.target.checked)}
+                    className="checkbox checkbox-md"
+                  />
+                  <span className="text-base font-medium">Show online</span>
+                </label>
+              )}
+
+              <label className="cursor-pointer flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={showGroups}
+                  onChange={(e) => {
+                    handleCheckbox(e.target.checked);
+                    setMenuOpen(false); // optional: close after action
+                  }}
+                  className="checkbox checkbox-md"
+                />
+                <span className="text-base font-medium">Groups</span>
+              </label>
+              {showGroups &&
+              selectedGroup &&
+              selectedGroup.createdBy === auth.currentUser.uid ? (
+                <div className="flex gap-2 flex-col">
+                  <button
+                    className="btn btn-primary w-full"
+                    onClick={() => {
+                      const oldValues = {
+                        name: selectedGroup.name,
+                        groupPic: selectedGroup.groupPic,
+                        members: selectedGroup.members,
+                        membersNames: selectedGroup.membersNames,
+                      };
+                      handleUpdateGroup(selectedGroup.id, oldValues);
+                    }}
+                  >
+                    Update Group
+                  </button>
+                  <button
+                    className="btn btn-error w-full"
+                    onClick={() => {
+                      handleDeleteGroup(selectedGroup.id);
+                    }}
+                  >
+                    Delete Group
+                  </button>
+                </div>
+              ) : null}
+              {showGroups && !selectedGroup && (
+                <button
+                  onClick={() => {
+                    handleCreateGroup();
+                    setMenuOpen(false);
+                  }}
+                  className="btn btn-primary w-full"
+                >
+                  Create group
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="mt-3 hidden lg:flex items-center gap-4">
           {!showGroups ? (
@@ -223,7 +366,7 @@ const Sidebar = () => {
         </div>
       ) : (
         <div className="overflow-y-auto w-full py-3">
-          {groups.map((group) => {
+          {filteredGroups.map((group) => {
             return (
               <button
                 key={group.id}
